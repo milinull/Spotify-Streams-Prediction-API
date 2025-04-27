@@ -134,7 +134,7 @@ Os três modelos trabalham em conjunto através de um **VotingRegressor** que co
 
 6. **Treine o modelo**
    ```bash
-   python scripts/train_spotify_model.py
+   python ML/train_spotify_model.py
    ```
 
 7. **Inicie o servidor**
