@@ -292,5 +292,5 @@ python scripts/scrap_spotify_charts.py
 Recomenda-se retreinar o modelo periodicamente para incorporar novos dados:
 
 ```bash
-python scripts/train_spotify_model.py
+python ML/train_spotify_model.py
 ```
