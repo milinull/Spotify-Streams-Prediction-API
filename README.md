@@ -179,7 +179,7 @@ curl -X POST http://localhost:8000/api/predict/ \
         "upper": 3476368
       }
     },
-    ...
+    ,,,
   ],
   "metrics": {
     "mae": 45863.22,
@@ -244,7 +244,7 @@ curl -X POST http://localhost:8000/api/analyze-trends/ \
       "date": "2025-04-26",
       "projected_streams": 3315467
     },
-    ...
+    ,,,
   ]
 }
 ```
