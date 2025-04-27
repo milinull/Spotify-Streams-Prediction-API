@@ -148,19 +148,19 @@ Os três modelos trabalham em conjunto através de um **VotingRegressor** que co
 
 | Endpoint | Método | Descrição |
 |----------|--------|-----------|
-| `/api/charts/` | GET | Lista todas as entradas de charts |
-| `/api/charts/?search=artista` | GET | Busca por artista ou título |
-| `/api/charts/?chart_date=2025-04-20` | GET | Filtra por data específica |
-| `/api/charts/?position=1` | GET | Filtra por posição no ranking |
-| `/api/predict/` | POST | Faz previsão de streams futuros |
-| `/api/analyze-trends/` | POST | Analisa tendências históricas |
+| `/charts/` | GET | Lista todas as entradas de charts |
+| `/charts/?search=artista` | GET | Busca por artista ou título |
+| `/charts/?chart_date=2025-04-20` | GET | Filtra por data específica |
+| `/charts/?position=1` | GET | Filtra por posição no ranking |
+| `/predict/` | POST | Faz previsão de streams futuros |
+| `/analyze-trends/` | POST | Analisa tendências históricas |
 
 ### Exemplos de Requisições
 
 #### Previsão de Streams
 
 ```bash
-curl -X POST http://localhost:8000/api/predict/ \
+curl -X POST http://localhost:8000/predict/ \
   -H "Content-Type: application/json" \
   -d '{"title": "Cruel Summer", "artist": "Taylor Swift", "days": 7}'
 ```
@@ -206,7 +206,7 @@ curl -X POST http://localhost:8000/api/predict/ \
 #### Análise de Tendências
 
 ```bash
-curl -X POST http://localhost:8000/api/analyze-trends/ \
+curl -X POST http://localhost:8000/analyze-trends/ \
   -H "Content-Type: application/json" \
   -d '{"title": "Cruel Summer", "artist": "Taylor Swift"}'
 ```
