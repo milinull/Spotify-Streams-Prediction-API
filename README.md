@@ -1,259 +1,296 @@
-# 🎵 Spotify Streams Prediction API
+# Spotify Streams Predictor API
 
-Projeto Django + Machine Learning para prever a quantidade de streams futuros de músicas baseando-se em dados históricos dos charts diários do Spotify.
+Uma API Django desenvolvida para coletar, analisar e prever dados de streams de músicas no Spotify utilizando técnicas de Machine Learning.
 
----
+![Spotify API](https://img.shields.io/badge/API-Spotify-1DB954)
+![Django](https://img.shields.io/badge/Framework-Django-092E20)
+![Python](https://img.shields.io/badge/Language-Python-3776AB)
+![ML](https://img.shields.io/badge/ML-Scikit--Learn-F7931E)
 
-## 📦 Funcionalidades
+## 📋 Índice
 
-- 📈 Previsão de streams futuros de qualquer música no histórico.
-- 🔍 Análise de tendências históricas (melhor dia da semana, força de tendência).
-- 🔄 Scraping diário dos dados do Spotify via GitHub Actions.
-- 🛠️ Treinamento automático de modelo de regressão.
-- 🗂️ API REST para acesso fácil às informações.
+- [Spotify Streams Predictor API](#spotify-streams-predictor-api)
+  - [📋 Índice](#-índice)
+  - [🔍 Visão Geral](#-visão-geral)
+  - [✨ Funcionalidades](#-funcionalidades)
+  - [📁 Estrutura do Projeto](#-estrutura-do-projeto)
+  - [🛠 Tecnologias Utilizadas](#-tecnologias-utilizadas)
+  - [🤖 Modelo de Machine Learning](#-modelo-de-machine-learning)
+  - [⚙️ Instalação e Configuração](#️-instalação-e-configuração)
+    - [Pré-requisitos](#pré-requisitos)
+    - [Passos para Instalação](#passos-para-instalação)
+  - [📡 Uso da API](#-uso-da-api)
+    - [Endpoints](#endpoints)
+    - [Exemplos de Requisições](#exemplos-de-requisições)
+      - [Previsão de Streams](#previsão-de-streams)
+      - [Análise de Tendências](#análise-de-tendências)
+  - [📊 Fluxo de Dados](#-fluxo-de-dados)
+  - [📊 Features do Modelo](#-features-do-modelo)
+  - [👨‍💻 Manutenção e Atualização](#-manutenção-e-atualização)
+    - [Atualização Diária dos Dados](#atualização-diária-dos-dados)
+    - [Retreinamento do Modelo](#retreinamento-do-modelo)
 
----
+## 🔍 Visão Geral
 
-## 🛠️ Tecnologias Utilizadas
+O **Spotify Streams Predictor** é uma API desenvolvida para coletar dados diários das músicas mais ouvidas globalmente no Spotify, processá-los e utilizar algoritmos de machine learning para prever tendências futuras de streams. A aplicação permite analisar o comportamento histórico de músicas específicas e fazer projeções precisas para os próximos dias.
 
-- **Python 3.12**
-- **Django 5.1.7** + **Django REST Framework**
-- **Scikit-Learn 1.6.1** (ML)
-- **BeautifulSoup 4.13.3** (Scraping)
-- **Pandas 2.2.3** e **Numpy 2.2.4** (Dados)
-- **GitHub Actions** (Automação diária)
-- **Joblib** (Persistência de modelo)
+## ✨ Funcionalidades
 
----
+- **Coleta Automatizada**: Extração automática de dados do Kworb.net com informações diárias do Spotify Charts
+- **Processamento de Dados**: Limpeza e estruturação dos dados coletados para análise
+- **Visualização de Charts**: API RESTful para consulta das músicas no ranking
+- **Previsão de Streams**: Modelo de machine learning para previsão de streams futuros
+- **Análise de Tendências**: Detecção de padrões e tendências nas performances das músicas
+- **Intervalos de Confiança**: Avaliação da qualidade das previsões com margens de erro
 
-## 📋 Como Funciona
-
-### 1. Coleta de Dados
-
-- Script `scripts/scrap_spotify_chart.py` faz scraping diário do ranking global do Spotify.
-- Armazena as músicas do dia no banco de dados (modelo `SQLite3`).
-
-### 2. Treinamento do Modelo
-
-- Script `ML/train_spotify_model.py` treina um modelo de regressão baseado nos dados históricos.
-- O modelo é salvo em `ML/spotify_streams_model.joblib`.
-
-### 3. APIs Disponíveis
-
-- **Prever streams futuros** (`/predict/`)
-- **Analisar tendências históricas** (`/analyze-trends/`)
-
----
-
-## 🤖 Explicação dos Códigos de Machine Learning e Treinamento
-
-### `ML/ml_predictor.py`
-
-Classe principal: **`StreamsPredictor`**
-
-| Função | O que faz |
-|:---|:---|
-| `load_or_create_model()` | Carrega o modelo salvo ou cria um novo ensemble de regressão (Gradient Boosting + Random Forest + Ridge). |
-| `load_metrics()` | Carrega as métricas do último treinamento salvo em `metrics.json`. |
-| `train(spotify_data)` | Treina o modelo com os dados históricos do Spotify armazenados no banco de dados. |
-| `predict_future_streams(song_title, artist, days_to_predict=7)` | Faz previsões de streams para os próximos dias para uma música específica. |
-| `analyze_song_trends(song_title, artist)` | Analisa o comportamento histórico da música: tendência de crescimento ou queda, melhores dias da semana, projeções futuras simples. |
-| `_prepare_training_data(spotify_data)` | Prepara e cria as features de entrada (X) e o target (y) a partir dos dados históricos para o treinamento. |
-| `_prepare_prediction_features(song_df)` | Constrói os vetores de features necessários para fazer uma previsão de streams futuros. |
-| `_evaluate_prediction_quality(song_df)` | Avalia se uma previsão será confiável (alta, média ou baixa confiança), baseada na estabilidade histórica da música. |
-| `_simple_prediction(song_df, days_to_predict)` | Faz uma previsão básica (linear) se não houver dados históricos suficientes para usar o modelo complexo. |
-| `_get_metrics_dict()` | Retorna as métricas de avaliação do modelo no formato de dicionário (MAE, RMSE, R²) para facilitar o envio via API. |
-
----
-
-### Estrutura do Modelo
-
-- **Pipeline**:
-  - Padronização: `StandardScaler`
-  - Regressão Ensemble: /`VotingRegressor` com
-    - `GradientBoostingRegressor`
-    - `RandomForestRegressor`
-    - `Ridge`
-
-- **Features usadas**:
-  - Posição atual, streams anteriores, tendência recente, dia da semana, se é fim de semana, etc.
-
----
-
-### Previsões
-
-- Se o histórico é robusto ➔ Previsão normal via ML.
-- Se histórico é pequeno ➔ Previsão simples baseada em média de variação.
-- Correção automática para fins de semana (+5% streams).
-- Indicação de confiança da previsão (alta, média ou baixa).
-
----
-
-## 🧩 Estrutura do Projeto
+## 📁 Estrutura do Projeto
 
 ```
-/ML/
-    ml_predictor.py     # Classe principal de Machine Learning
-    spotify_streams_model.joblib  # Modelo salvo após treino
-    train_spotify_model.py # Treinamento do modelo
-
-/scripts/
-    scrap_spotify_charts.py # Scraping e importação de dados
-
-/data_csv/
-    /original/           # CSVs brutos baixados
-    /processed/          # CSVs processados e corrigidos
-
-/.github/workflows/
-    daily_scraper.yml    # GitHub Action para scraping automático
+spotify-streams-predictor/
+├── api_charts/                  
+│   ├── models.py                
+│   ├── serializers.py           
+│   ├── views.py                                
+├── ML/                          
+│   ├── ml_predictor.py          # Implementação do modelo de previsão
+│   ├── metrics.json             # Métricas de performance do modelo
+│   └── spotify_streams_model.joblib  # Modelo treinado serializado
+│   └── train_spotify_model.py   # Script para treinamento do modelo
+├── scripts/                     
+│   ├── scrap_spotify_charts.py    # Script para obtenção dos dados
+├── data_csv/                    
+│   ├── original/                # CSV originais coletados
+│   └── processed/               # CSV processados para uso
+├── setup/                       
+│   ├── settings.py              
+│   ├── urls.py                  
+│   └── wsgi.py                  
+└── manage.py                    
 ```
 
----
+## 🛠 Tecnologias Utilizadas
 
-## 🚀 Como Rodar Localmente
+- **[Django](https://www.djangoproject.com/)**: Framework web
+- **[Django REST Framework](https://www.django-rest-framework.org/)**: Framework para APIs REST
+- **[Scikit-Learn](https://scikit-learn.org/)**: Biblioteca de machine learning
+- **[Pandas](https://pandas.pydata.org/)**: Manipulação e análise de dados
+- **[NumPy](https://numpy.org/)**: Computação numérica
+- **[BeautifulSoup](https://www.crummy.com/software/BeautifulSoup/)**: Web scraping
+- **[Joblib](https://joblib.readthedocs.io/)**: Serialização de modelos ML
+- **[SciPy](https://www.scipy.org/)**: Biblioteca científica para análise estatística
 
-1. **Clone o repositório:**
+## 🤖 Modelo de Machine Learning
+
+O sistema utiliza um modelo ensemble sofisticado composto por três algoritmos complementares:
+
+1. **Gradient Boosting Regressor**: Para capturar padrões complexos não-lineares
+2. **Random Forest Regressor**: Para lidar com diferentes tipos de dados e evitar overfitting
+3. **Ridge Regression**: Para estabelecer uma base linear robusta
+
+Os três modelos trabalham em conjunto através de um **VotingRegressor** que combina suas previsões para obter resultados mais precisos e estáveis. O pipeline completo inclui:
+
+- Pré-processamento com StandardScaler para normalização dos dados
+- Extração de features temporais (dia da semana, fim de semana)
+- Cálculo de médias móveis (3 e 7 dias)
+- Detecção de tendências recentes
+- Ajustes sazonais para dias da semana
+
+## ⚙️ Instalação e Configuração
+
+### Pré-requisitos
+
+- Python 3.12
+- pip (gerenciador de pacotes Python)
+- Banco de dados PostgreSQL (recomendado) ou SQLite
+
+### Passos para Instalação
+
+1. **Clone o repositório**
+   ```bash
+   git clone https://github.com/milinull/Spotify-Streams-Prediction-API.git
+   cd spotify-streams-predictor
+   ```
+
+2. **Crie e ative um ambiente virtual**
+   ```bash
+   python -m venv venv
+   venv\Scripts\activate  # No Windows
+   ```
+
+3. **Instale as dependências**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Configure o banco de dados**
+   ```bash
+   python manage.py migrate
+   ```
+
+5. **Colete os dados iniciais**
+   ```bash
+   python scripts/scrap_spotify_charts.py
+   ```
+
+6. **Treine o modelo**
+   ```bash
+   python scripts/train_spotify_model.py
+   ```
+
+7. **Inicie o servidor**
+   ```bash
+   python manage.py runserver
+   ```
+
+## 📡 Uso da API
+
+### Endpoints
+
+| Endpoint | Método | Descrição |
+|----------|--------|-----------|
+| `/api/charts/` | GET | Lista todas as entradas de charts |
+| `/api/charts/?search=artista` | GET | Busca por artista ou título |
+| `/api/charts/?chart_date=2025-04-20` | GET | Filtra por data específica |
+| `/api/charts/?position=1` | GET | Filtra por posição no ranking |
+| `/api/predict/` | POST | Faz previsão de streams futuros |
+| `/api/analyze-trends/` | POST | Analisa tendências históricas |
+
+### Exemplos de Requisições
+
+#### Previsão de Streams
 
 ```bash
-git clone https://github.com/milinull/Spotify-Streams-Prediction-API
+curl -X POST http://localhost:8000/api/predict/ \
+  -H "Content-Type: application/json" \
+  -d '{"title": "Cruel Summer", "artist": "Taylor Swift", "days": 7}'
 ```
 
-2. **Crie o ambiente virtual:**
+**Resposta:**
+```json
+{
+  "current_streams": 3254698,
+  "current_date": "2025-04-25",
+  "predictions": [
+    {
+      "date": "2025-04-26",
+      "predicted_streams": 3289412,
+      "confidence_interval": {
+        "lower": 3102456,
+        "upper": 3476368
+      }
+    },
+    ...
+  ],
+  "metrics": {
+    "mae": 45863.22,
+    "rmse": 62914.58,
+    "r2": 0.9432,
+    "description": {
+      "mae": "Erro Médio Absoluto (menor é melhor)",
+      "rmse": "Raiz do Erro Quadrático Médio (menor é melhor)",
+      "r2": "Coeficiente de Determinação (mais próximo de 1 é melhor)"
+    }
+  },
+  "prediction_quality": {
+    "confidence": "alta",
+    "reason": "Streams estáveis ao longo do tempo",
+    "trend": "ascendente",
+    "variability": {
+      "coefficient_of_variation": 0.0812,
+      "standard_deviation": 264892
+    }
+  }
+}
+```
+
+#### Análise de Tendências
 
 ```bash
-python -m venv venv
-venv\Scripts\activate     # Windows
+curl -X POST http://localhost:8000/api/analyze-trends/ \
+  -H "Content-Type: application/json" \
+  -d '{"title": "Cruel Summer", "artist": "Taylor Swift"}'
 ```
 
-3. **Instale as dependências:**
+**Resposta:**
+```json
+{
+  "song_info": {
+    "title": "Cruel Summer",
+    "artist": "Taylor Swift",
+    "days_on_chart": 312,
+    "peak_position": 1,
+    "peak_streams": 4578932,
+    "average_streams": 3245621
+  },
+  "trend_analysis": {
+    "recent_direction": "crescente",
+    "trend_strength": 0.87,
+    "weekly_pattern": {
+      "best_day": "Sábado",
+      "worst_day": "Quarta",
+      "daily_averages": {
+        "Segunda": 3102458,
+        "Terça": 2987654,
+        "Quarta": 2876543,
+        "Quinta": 3056789,
+        "Sexta": 3456789,
+        "Sábado": 3876543,
+        "Domingo": 3654321
+      }
+    }
+  },
+  "linear_projection": [
+    {
+      "date": "2025-04-26",
+      "projected_streams": 3315467
+    },
+    ...
+  ]
+}
+```
+
+## 📊 Fluxo de Dados
+
+O sistema opera através do seguinte fluxo:
+
+1. **Coleta**: O script `scrap_spotify_charts.py` extrai dados diários do Kworb.net
+2. **Processamento**: Os dados são limpos, transformados e normalizados
+3. **Armazenamento**: As informações são salvas no banco de dados
+4. **Treinamento**: O modelo é treinado periodicamente com os dados acumulados
+5. **Previsão**: Quando solicitado, o modelo faz previsões baseadas nos padrões aprendidos
+6. **Análise**: Métricas e estatísticas são calculadas para avaliar a qualidade das previsões
+
+## 📊 Features do Modelo
+
+As principais features utilizadas pelo modelo de previsão incluem:
+
+- **Posição atual e anterior no ranking**
+- **Quantidade de streams atual e anterior**
+- **Dias na parada**
+- **Posição de pico**
+- **Multiplicador (quando disponível)**
+- **Variação de streams entre dias**
+- **Média semanal de streams**
+- **Variação da média semanal**
+- **Média móvel de 3 dias**
+- **Dia da semana (0-6)**
+- **Flag de fim de semana**
+- **Tendência recente (inclinação da curva)**
+
+## 👨‍💻 Manutenção e Atualização
+
+### Atualização Diária dos Dados
+
+Para manter o banco de dados atualizado, configure um cronjob ou task scheduler para executar:
 
 ```bash
-pip install -r requirements.txt
+python scripts/scrap_spotify_charts.py
 ```
 
-4. **Ajuste configurações do Django** se necessário (banco de dados, etc).
+### Retreinamento do Modelo
 
-5. **Execute as migrações:**
-
-```bash
-python manage.py migrate
-```
-
-6. **Coleta de dados inicial:**
-
-```bash
-python scripts/get_spotify_charts.py
-```
-
-7. **Treinamento inicial do modelo:**
+Recomenda-se retreinar o modelo periodicamente para incorporar novos dados:
 
 ```bash
 python scripts/train_spotify_model.py
 ```
-
-8. **Rodar o servidor:**
-
-```bash
-python manage.py runserver
-```
-
----
-
-## 📚 Endpoints Disponíveis
-
-| Método | Rota             | Descrição                              |
-|:------:|:-----------------|:--------------------------------------|
-| POST   | `/predict/`       | Faz previsão de streams futuros       |
-| POST   | `/analyze-trends/`| Analisa tendências históricas         |
-| GET    | `/charts/`        | Lista os charts históricos            |
-
----
-
-### Exemplo de Request `/predict/`
-
-```json
-{
-  "title": "Blinding Lights",
-  "artist": "The Weeknd",
-  "days": 7
-}
-```
-
-### Exemplo de Request `/analyze-trends/`
-
-```json
-{
-  "title": "Blinding Lights",
-  "artist": "The Weeknd"
-}
-```
-
----
-
-## ⚙️ Automação Diária (GitHub Actions)
-
-O scraping e atualização do banco de dados são automáticos através do **GitHub Actions**!
-
-Arquivo de workflow: `.github/workflows/daily_scraper.yml`
-
-### O que ele faz:
-
-- Todo dia às **18:00 BRT** (`21:00 UTC`) o GitHub Actions:
-  - Roda o script `scrap_spotify_chart.py`
-  - Atualiza os dados no repositório
-  - Faz commit automático com a mensagem `"update diário automático"`
-
-### Exemplo do Workflow:
-
-```yaml
-name: Daily Spotify Chart Scraper
-
-permissions:
-  contents: write
-
-on:
-  schedule:
-    - cron: '0 21 * * *'
-  workflow_dispatch:
-
-jobs:
-  run-script:
-    runs-on: windows-latest
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-
-    - name: Setup Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.12'
-
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-
-    - name: Run scraping script
-      env:
-        DJANGO_SETTINGS_MODULE: setup.settings
-      run: python scripts\scrap_spotify_chart.py
-
-    - name: Commit and Push
-      run: |
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git add .
-        git commit -m "update diário automático" || echo "Sem alterações para commit"
-        git push
-```
-
----
-
-## 📜 Observações Importantes
-
-- O modelo precisa ser re-treinado periodicamente para melhor desempenho.
-- Se a música não for encontrada no histórico, a API retorna erro 404.
-- A previsão considera padrões semanais para melhorar a acurácia.
-
----
