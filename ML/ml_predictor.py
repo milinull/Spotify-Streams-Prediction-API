@@ -1,4 +1,4 @@
-# scripts/ml_predictor.py
+# ML/ml_predictor.py
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
