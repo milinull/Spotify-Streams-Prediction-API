@@ -1,40 +1,40 @@
-name: Daily Spotify Chart Scraper
-
-permissions:
-  contents: write
-
-on:
-  schedule:
-    - cron: '0 21 * * *'  # Todos os dias à 21:00 UTC (18:00 BRT)
-  workflow_dispatch:      # Permite rodar manualmente também
-
-jobs:
-  run-script:
-    runs-on: windows-latest
-
-    steps:
-    - name: Checkout do repositório
-      uses: actions/checkout@v3
-
-    - name: Configurar ambiente Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.12'
-
-    - name: Instalar dependências
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-
-    - name: Rodar script de scraping
-      env:
-        DJANGO_SETTINGS_MODULE: setup.settings
-      run: python scripts\scrap_spotify_chart.py
-
-    - name: Commit e push do banco atualizado
-      run: |
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git add .
-        git commit -m "update diário automático" || echo "Sem alterações para commit"
-        git push
+# name: Daily Spotify Chart Scraper
+#
+# permissions:
+#   contents: write
+#
+# on:
+#   schedule:
+#     - cron: '0 21 * * *'  # Todos os dias à 21:00 UTC (18:00 BRT)
+#   workflow_dispatch:      # Permite rodar manualmente também
+#
+# jobs:
+#   run-script:
+#     runs-on: windows-latest
+#
+#     steps:
+#     - name: Checkout do repositório
+#       uses: actions/checkout@v3
+#
+#     - name: Configurar ambiente Python
+#       uses: actions/setup-python@v4
+#       with:
+#         python-version: '3.12'
+#
+#     - name: Instalar dependências
+#       run: |
+#         python -m pip install --upgrade pip
+#         pip install -r requirements.txt
+#
+#     - name: Rodar script de scraping
+#       env:
+#         DJANGO_SETTINGS_MODULE: setup.settings
+#       run: python scripts\scrap_spotify_chart.py
+#
+#     - name: Commit e push do banco atualizado
+#       run: |
+#         git config --global user.name "github-actions[bot]"
+#         git config --global user.email "github-actions[bot]@users.noreply.github.com"
+#         git add .
+#         git commit -m "update diário automático" || echo "Sem alterações para commit"
+#         git push
