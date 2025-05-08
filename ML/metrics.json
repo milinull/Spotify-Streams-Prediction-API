@@ -1,1 +1,1 @@
-{"mae": 18941.62, "rmse": 30854.66, "r2": 0.8558, "description": {"mae": "Erro M\u00e9dio Absoluto (menor \u00e9 melhor)", "rmse": "Raiz do Erro Quadr\u00e1tico M\u00e9dio (menor \u00e9 melhor)", "r2": "Coeficiente de Determina\u00e7\u00e3o (mais pr\u00f3ximo de 1 \u00e9 melhor)"}}
+{"mae": 23078.4, "rmse": 31451.64, "r2": 0.8548, "description": {"mae": "Erro M\u00e9dio Absoluto (menor \u00e9 melhor)", "rmse": "Raiz do Erro Quadr\u00e1tico M\u00e9dio (menor \u00e9 melhor)", "r2": "Coeficiente de Determina\u00e7\u00e3o (mais pr\u00f3ximo de 1 \u00e9 melhor)"}}
