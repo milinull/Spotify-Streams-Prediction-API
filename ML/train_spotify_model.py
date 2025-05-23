@@ -6,10 +6,7 @@ from pathlib import Path
 import json
 
 # Configurar o ambiente Django
-# Adicione o caminho do projeto ao sys.path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-# Configurar o Django para usar o arquivo de configurações do projeto
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'setup.settings')
 django.setup()
 
@@ -17,31 +14,40 @@ from api_charts.models import SpotifyChart
 from ML.ml_predictor import StreamsPredictor
 
 def train_model():
+    """Treina o modelo com a nova estrutura modularizada"""
     print("Iniciando treinamento do modelo...")
     
+    # Buscar todos os dados
     all_data = SpotifyChart.objects.all()
     print(f"Total de registros: {all_data.count()}")
     
     if all_data.count() == 0:
         print("ERRO: Sem dados para treinar!")
         return
-        
-    predictor = StreamsPredictor()
+    
+    # Criar instância do predictor com a nova estrutura
+    predictor = StreamsPredictor(model_path='C:/Users/Brian/Desktop/spotify_dataset_v3/ML/spotify_streams_model.joblib')
+    
+    # Treinar o modelo
     training_result = predictor.train(all_data)
-    #print(training_result)
+    
+    # Verificar se houve erro no treinamento
+    if "error" in training_result:
+        print(f"ERRO no treinamento: {training_result['error']}")
+        return
     
     print("Modelo treinado com sucesso!")
-    print(f"Métricas:")
-    print(f"MAE: {training_result['metrics']['mae']}")
-    print(f"RMSE: {training_result['metrics']['rmse']}")
-    print(f"R²: {training_result['metrics']['r2']}")
-
-    # Salvar métricas em um arquivo JSON
-    metrics_path = Path('metrics.json')
-    with metrics_path.open('w') as f:
-        json.dump(training_result['metrics'], f)
+    print("Métricas do modelo:")
+    print(f"  MAE (Erro Médio Absoluto): {training_result['metrics']['mae']}")
+    print(f"  RMSE (Raiz do Erro Quadrático): {training_result['metrics']['rmse']}")
+    print(f"  R² (Coeficiente de Determinação): {training_result['metrics']['r2']}")
+    print(f"  Tamanho do conjunto de treino: {training_result['training_size']}")
+    print(f"  Tamanho do conjunto de teste: {training_result['testing_size']}")
     
-    print("Agora você pode usar a API de previsão!")
+    # As métricas já são salvas automaticamente pela nova estrutura
+    print("\nMétricas salvas automaticamente em 'ML/metrics.json'")
+    print("Modelo salvo automaticamente em 'ML/spotify_streams_model.joblib'")
+    print("\nAgora você pode usar a API de previsão!")
 
 if __name__ == "__main__":
     train_model()
