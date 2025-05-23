@@ -11,3 +11,7 @@ class StreamPredictionRequestSerializer(serializers.Serializer):
     title = serializers.CharField(max_length=255)
     artist = serializers.CharField(max_length=255)
     days = serializers.IntegerField(min_value=1, max_value=30, default=7)
+
+class SimpleReturnSerializer(serializers.Serializer):
+    title = serializers.CharField(max_length=255)
+    artist = serializers.CharField(max_length=255)

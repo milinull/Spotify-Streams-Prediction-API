@@ -1,13 +1,13 @@
 # ML/ml_predictor.py
 import numpy as np
 import pandas as pd
-from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
+from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor, VotingRegressor
 from sklearn.linear_model import Ridge
 from sklearn.pipeline import Pipeline
-from sklearn.ensemble import VotingRegressor
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from datetime import datetime, timedelta
+from django.apps import apps
 import joblib
 import os
 import json
@@ -15,17 +15,18 @@ import json
 class StreamsPredictor:
     def __init__(self, model_path='spotify_streams_model.joblib'):
         self.model_path = model_path
-        self.model = None
-        self.load_or_create_model()
-        self.metrics = {
+        self.model = None       # Carregar o modelo
+        self.metrics = {        # Dicionário de métricas
             'mae': None,
             'rmse': None,
             'r2': None
         }
+        self.load_or_create_model()
         self.load_metrics()
 
     def load_metrics(self):
         """Carrega métricas do arquivo JSON em scripts/metrics.json, se existir"""
+
         metrics_path = os.path.join('ML', 'metrics.json')
         if os.path.exists(metrics_path):
             with open(metrics_path, 'r') as f:
@@ -36,7 +37,8 @@ class StreamsPredictor:
             pass
         
     def load_or_create_model(self):
-        """Carrega o modelo existente ou cria um novo com arquitetura melhorada"""
+        """Carrega o modelo existente ou cria um novo"""
+
         if os.path.exists(self.model_path):
             try:
                 self.model = joblib.load(self.model_path)
@@ -78,11 +80,12 @@ class StreamsPredictor:
         return False 
 
     def analyze_song_trends(self, song_title, artist):
-        """Analisa tendências históricas da música para melhorar previsões"""
-        from django.apps import apps
+        """Analise estatística de tendências históricas da música"""
+
         SpotifyChart = apps.get_model('api_charts', 'SpotifyChart')
         
         # Buscar histórico da música
+        # Filtra os registros da tabela pelo artista e título
         song_data = SpotifyChart.objects.filter(
             title=song_title, 
             artist=artist
@@ -91,21 +94,19 @@ class StreamsPredictor:
         if not song_data.exists():
             return {"error": "Música não encontrada no histórico"}
         
-        # Converter para DataFrame
-        song_df = pd.DataFrame(list(song_data.values()))
-        song_df['chart_date'] = pd.to_datetime(song_df['chart_date'])
-        
-        # Calcular dias na parada
-        days_on_chart = len(song_df)
+        song_df = pd.DataFrame(list(song_data.values()))                # Converter para DataFrame
+        song_df['chart_date'] = pd.to_datetime(song_df['chart_date'])   # Converter a coluna chart_date para datetime
         
         # Calcular estatísticas básicas
-        peak_position = song_df['position'].min()  # Menor número = posição mais alta
-        peak_streams = song_df['streams'].max()
-        avg_streams = song_df['streams'].mean()
+        days_on_chart = len(song_df)                # Calcular dias na parada
+        peak_position = song_df['position'].min()   # Melhor posição alcançada, menor número = posição mais alta
+        peak_streams = song_df['streams'].max()     # Número máximo de streams
+        avg_streams = song_df['streams'].mean()     # Média diária de streams
         
-        # Calcular tendência recente (últimos 7 dias)
+        # Selecionar os últimos 7 dias de dados
         recent_df = song_df.tail(min(7, len(song_df)))
         
+        # Se houver pelo menos 3 dias de dados
         if len(recent_df) >= 3:
             # Ajustar uma linha de tendência
             from scipy import stats
@@ -120,7 +121,7 @@ class StreamsPredictor:
             # Projeção linear simples para 7 dias
             future_projection = []
             last_date = recent_df['chart_date'].iloc[-1]
-            last_streams = recent_df['streams'].iloc[-1]
+            #last_streams = recent_df['streams'].iloc[-1]
             
             for i in range(1, 8):
                 projected_streams = intercept + slope * (len(recent_df) + i - 1)
@@ -175,7 +176,8 @@ class StreamsPredictor:
         }
 
     def train(self, spotify_data):
-        """Treina o modelo com dados históricos"""
+        """Treina o modelo com os dados históricos"""
+
         # Preparar features (X) e target (y)
         features, targets = self._prepare_training_data(spotify_data)
         
@@ -217,7 +219,6 @@ class StreamsPredictor:
         if self.metrics['mae'] is None:
             self.load_metrics()
 
-        from django.apps import apps
         SpotifyChart = apps.get_model('api_charts', 'SpotifyChart')
         
         # Buscar histórico da música
@@ -562,3 +563,27 @@ class StreamsPredictor:
         ]
         
         return np.array([feature_vector])
+    
+    def simple_return(self, song_title, artist):
+
+        SpotifyChart = apps.get_model('api_charts', 'SpotifyChart')
+
+        song_data = SpotifyChart.objects.filter(
+            title=song_title,
+            artist=artist
+        ).order_by('chart_date')
+
+        song_df = pd.DataFrame(list(song_data.values()))
+        song_df['chart_date'] = pd.to_datetime(song_df['chart_date'])
+
+        recent_df = song_df.tail(min(7, len(song_df)))
+
+        result = [
+            {
+                "date": row['chart_date'].strftime('%Y-%m-%d'),
+                "streams": row['streams']
+            }
+            for _, row in recent_df.iterrows()
+        ]
+
+        return result

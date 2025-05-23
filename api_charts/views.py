@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 from django_filters.rest_framework import DjangoFilterBackend
 
 from .models import SpotifyChart
-from .serializers import SpotifyChartSerializer, StreamPredictionRequestSerializer
+from .serializers import SpotifyChartSerializer, StreamPredictionRequestSerializer, SimpleReturnSerializer
 from ML.ml_predictor import StreamsPredictor  # Caminho atualizado
 
 class SpotifyChartViewSet(viewsets.ReadOnlyModelViewSet):
@@ -73,5 +73,27 @@ class SongTrendAnalysisView(APIView):
             analysis = predictor.analyze_song_trends(title, artist)
             
             return Response(analysis)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class SimpleReturnView(APIView):
+    
+    def post(self, request, format=None):
+        serializer = SimpleReturnSerializer(data=request.data)
+        
+        if serializer.is_valid():
+            title = serializer.validated_data['title']
+            artist = serializer.validated_data['artist']
+            
+            # Verificar se a música existe
+            if not SpotifyChart.objects.filter(title=title, artist=artist).exists():
+                return Response(
+                    {"error": f"Música '{title}' do artista '{artist}' não encontrada no banco de dados"}, 
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            
+            musicas = StreamsPredictor().simple_return(title, artist)
+            
+            return Response(musicas)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

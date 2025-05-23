@@ -1,7 +1,7 @@
 # urls.py
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from api_charts.views import SpotifyChartViewSet, StreamPredictionView, SongTrendAnalysisView
+from api_charts.views import SpotifyChartViewSet, StreamPredictionView, SongTrendAnalysisView, SimpleReturnView 
 
 router = DefaultRouter()
 router.register(r'charts', SpotifyChartViewSet)
@@ -10,4 +10,5 @@ urlpatterns = [
     path('', include(router.urls)),
     path('predict/', StreamPredictionView.as_view(), name='predict-streams'),
     path('analyze-trends/', SongTrendAnalysisView.as_view(), name='analyze-trends'),
+    path('simple-return/', SimpleReturnView.as_view(), name='bd-return'),
 ]
