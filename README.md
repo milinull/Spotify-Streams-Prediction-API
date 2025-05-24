@@ -44,7 +44,7 @@ Uma API Django desenvolvida para coletar, analisar e prever dados de streams de 
 
 ## 🔍 Visão Geral
 
-O **Spotify Streams Predictor** é uma API Django com arquitetura modular que utiliza Machine Learning para análise e previsão de streams do Spotify. O sistema foi completamente refatorado com classes especializadas, oferecendo previsões precisas, análise de tendências e intervalos de confiança robustos.
+O **Spotify Streams Predictor** é uma API desenvolvida para coletar dados diários das músicas mais ouvidas globalmente no Spotify, processá-los e utilizar algoritmos de machine learning para prever tendências futuras de streams. A aplicação permite analisar o comportamento histórico de músicas específicas e fazer projeções precisas para os próximos dias.
 
 ## ✨ Funcionalidades
 
