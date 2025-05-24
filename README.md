@@ -94,7 +94,6 @@ spotify-streams-predictor/
 │   ├── models.py               # Modelo SpotifyChart
 │   ├── serializers.py          # Serializers DRF
 │   ├── views.py                # Views com integração ML
-│   └── urls.py                 # Endpoints da API
 ├── ML/                          
 │   ├── ml_predictor.py         # Sistema ML modular completo
 │   ├── metrics.json            # Métricas salvas automaticamente
@@ -112,7 +111,7 @@ spotify-streams-predictor/
 ## 🛠 Tecnologias Utilizadas
 
 ### Core Framework
-- **[Django 4.x](https://www.djangoproject.com/)**: Framework web robusto
+- **[Django 5.x](https://www.djangoproject.com/)**: Framework web robusto
 - **[Django REST Framework](https://www.django-rest-framework.org/)**: APIs RESTful
 - **[SQLite3](https://sqlite.org/)**: Banco de dados integrado
 
@@ -168,7 +167,7 @@ Pipeline([
 
 ### Pré-requisitos
 
-- Python 3.8+ (recomendado 3.10+)
+- Python 3.12+
 - pip (gerenciador de pacotes)
 
 ### Passos para Instalação
