@@ -279,44 +279,43 @@ curl -X POST http://localhost:8000/predict/ \
 ```bash
 curl -X POST http://localhost:8000/analyze-trends/ \
   -H "Content-Type: application/json" \
-  -d '{
-    "title": "Flowers", 
-    "artist": "Miley Cyrus"
-  }'
+  -d '{"title": "Cruel Summer", "artist": "Taylor Swift"}'
 ```
 
 **Resposta:**
 ```json
 {
   "song_info": {
-    "title": "Flowers",
-    "artist": "Miley Cyrus"
-  },
-  "song_stats": {
-    "days_on_chart": 156,
+    "title": "Cruel Summer",
+    "artist": "Taylor Swift",
+    "days_on_chart": 312,
     "peak_position": 1,
-    "peak_streams": 5234567,
-    "average_streams": 3876543
+    "peak_streams": 4578932,
+    "average_streams": 3245621
   },
   "trend_analysis": {
-    "direction": "decrescente",
-    "strength": 0.67
-  },
-  "weekly_patterns": {
-    "best_day": "Sábado",
-    "worst_day": "Terça",
-    "daily_averages": {
-      "Segunda": 3654321,
-      "Terça": 3234567,
-      // ... outros dias
+    "recent_direction": "crescente",
+    "trend_strength": 0.87,
+    "weekly_pattern": {
+      "best_day": "Sábado",
+      "worst_day": "Quarta",
+      "daily_averages": {
+        "Segunda": 3102458,
+        "Terça": 2987654,
+        "Quarta": 2876543,
+        "Quinta": 3056789,
+        "Sexta": 3456789,
+        "Sábado": 3876543,
+        "Domingo": 3654321
+      }
     }
   },
   "linear_projection": [
     {
-      "date": "2024-05-25",
-      "projected_streams": 3825647
-    }
-    // ... próximos 7 dias
+      "date": "2025-04-26",
+      "projected_streams": 3315467
+    },
+    ,,,
   ]
 }
 ```
