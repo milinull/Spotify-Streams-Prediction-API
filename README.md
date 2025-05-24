@@ -111,7 +111,7 @@ spotify-streams-predictor/
 ## 🛠 Tecnologias Utilizadas
 
 ### Core Framework
-- **[Django 4.x](https://www.djangoproject.com/)**: Framework web robusto
+- **[Django 5.x](https://www.djangoproject.com/)**: Framework web robusto
 - **[Django REST Framework](https://www.django-rest-framework.org/)**: APIs RESTful
 - **[SQLite3](https://sqlite.org/)**: Banco de dados integrado
 
@@ -167,7 +167,7 @@ Pipeline([
 
 ### Pré-requisitos
 
-- Python 3.8+ (recomendado 3.10+)
+- Python 3.12+
 - pip (gerenciador de pacotes)
 
 ### Passos para Instalação
