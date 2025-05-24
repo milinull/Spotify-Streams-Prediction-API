@@ -279,7 +279,8 @@ curl -X POST http://localhost:8000/predict/ \
 curl -X POST http://localhost:8000/analyze-trends/ \
   -H "Content-Type: application/json" \
   -d '{
-  "title": "Cruel Summer", "artist": "Taylor Swift"
+    "title": "Cruel Summer",
+    "artist": "Taylor Swift"
   }'
 ```
 
