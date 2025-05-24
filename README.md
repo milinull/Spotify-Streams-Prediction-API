@@ -278,7 +278,9 @@ curl -X POST http://localhost:8000/predict/ \
 ```bash
 curl -X POST http://localhost:8000/analyze-trends/ \
   -H "Content-Type: application/json" \
-  -d '{"title": "Cruel Summer", "artist": "Taylor Swift"}'
+  -d '{
+  "title": "Cruel Summer", "artist": "Taylor Swift"
+  }'
 ```
 
 **Resposta:**
