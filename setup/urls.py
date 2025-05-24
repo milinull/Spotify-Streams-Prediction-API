@@ -16,6 +16,6 @@ urlpatterns = [
     path('simple-return/', SimpleReturnView.as_view(), name='bd-return'),
     
     # Novos endpoints para gerenciamento do modelo
-    path('train-model/', ModelTrainingView.as_view(), name='train-model'),
+    #path('train-model/', ModelTrainingView.as_view(), name='train-model'),
     path('model-metrics/', ModelMetricsView.as_view(), name='model-metrics'),
 ]

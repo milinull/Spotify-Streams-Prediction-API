@@ -1,11 +1,12 @@
 # Spotify Streams Predictor API
 
-Uma API Django desenvolvida para coletar, analisar e prever dados de streams de músicas no Spotify utilizando técnicas de Machine Learning.
+Uma API Django desenvolvida para coletar, analisar e prever dados de streams de músicas no Spotify utilizando técnicas de Machine Learning avançadas com arquitetura modular.
 
 ![Spotify API](https://img.shields.io/badge/API-Spotify-1DB954)
 ![Django](https://img.shields.io/badge/Framework-Django-092E20)
 ![Python](https://img.shields.io/badge/Language-Python-3776AB)
 ![ML](https://img.shields.io/badge/ML-Scikit--Learn-F7931E)
+![SQLite](https://img.shields.io/badge/Database-SQLite-003B57)
 
 ## 📋 Índice
 
@@ -13,128 +14,196 @@ Uma API Django desenvolvida para coletar, analisar e prever dados de streams de 
   - [📋 Índice](#-índice)
   - [🔍 Visão Geral](#-visão-geral)
   - [✨ Funcionalidades](#-funcionalidades)
+  - [🏗️ Arquitetura Modular](#️-arquitetura-modular)
+    - [Classes Principais](#classes-principais)
   - [📁 Estrutura do Projeto](#-estrutura-do-projeto)
   - [🛠 Tecnologias Utilizadas](#-tecnologias-utilizadas)
-  - [🤖 Modelo de Machine Learning](#-modelo-de-machine-learning)
+    - [Core Framework](#core-framework)
+    - [Machine Learning Stack](#machine-learning-stack)
+    - [Utilitários](#utilitários)
+  - [🤖 Sistema de Machine Learning](#-sistema-de-machine-learning)
+    - [Modelo Ensemble Avançado](#modelo-ensemble-avançado)
+    - [Pipeline Completo](#pipeline-completo)
+    - [Features Inteligentes (13 dimensões)](#features-inteligentes-13-dimensões)
   - [⚙️ Instalação e Configuração](#️-instalação-e-configuração)
     - [Pré-requisitos](#pré-requisitos)
     - [Passos para Instalação](#passos-para-instalação)
   - [📡 Uso da API](#-uso-da-api)
-    - [Endpoints](#endpoints)
+    - [Endpoints Disponíveis](#endpoints-disponíveis)
     - [Exemplos de Requisições](#exemplos-de-requisições)
-      - [Previsão de Streams](#previsão-de-streams)
-      - [Análise de Tendências](#análise-de-tendências)
-  - [📊 Fluxo de Dados](#-fluxo-de-dados)
-  - [📊 Features do Modelo](#-features-do-modelo)
-  - [👨‍💻 Manutenção e Atualização](#-manutenção-e-atualização)
+      - [🎯 Previsão de Streams](#-previsão-de-streams)
+      - [📊 Análise de Tendências](#-análise-de-tendências)
+      - [📈 Métricas do Modelo](#-métricas-do-modelo)
+  - [📊 Features e Análises](#-features-e-análises)
+    - [Engenharia de Features Automatizada](#engenharia-de-features-automatizada)
+    - [Análises Estatísticas Avançadas](#análises-estatísticas-avançadas)
+    - [Ajustes Contextuais](#ajustes-contextuais)
+  - [🔧 Manutenção](#-manutenção)
     - [Atualização Diária dos Dados](#atualização-diária-dos-dados)
     - [Retreinamento do Modelo](#retreinamento-do-modelo)
 
 ## 🔍 Visão Geral
 
-O **Spotify Streams Predictor** é uma API desenvolvida para coletar dados diários das músicas mais ouvidas globalmente no Spotify, processá-los e utilizar algoritmos de machine learning para prever tendências futuras de streams. A aplicação permite analisar o comportamento histórico de músicas específicas e fazer projeções precisas para os próximos dias.
+O **Spotify Streams Predictor** é uma API Django com arquitetura modular que utiliza Machine Learning para análise e previsão de streams do Spotify. O sistema foi completamente refatorado com classes especializadas, oferecendo previsões precisas, análise de tendências e intervalos de confiança robustos.
 
 ## ✨ Funcionalidades
 
-- **Coleta Automatizada**: Extração automática de dados do Kworb.net com informações diárias do Spotify Charts
-- **Processamento de Dados**: Limpeza e estruturação dos dados coletados para análise
-- **Visualização de Charts**: API RESTful para consulta das músicas no ranking
-- **Previsão de Streams**: Modelo de machine learning para previsão de streams futuros
-- **Análise de Tendências**: Detecção de padrões e tendências nas performances das músicas
-- **Intervalos de Confiança**: Avaliação da qualidade das previsões com margens de erro
+- **🔄 Coleta Automatizada**: Extração automática de dados do Kworb.net
+- **🧠 IA Avançada**: Sistema modular com múltiplos algoritmos de ML
+- **📈 Previsões Inteligentes**: Previsões com intervalos de confiança e ajustes contextuais
+- **📊 Análise Completa**: Tendências, padrões semanais e projeções lineares
+- **🎯 Alta Precisão**: Sistema ensemble com validação cruzada
+- **📋 API RESTful**: Endpoints organizados e documentados
+- **💾 Armazenamento Local**: Banco SQLite3 para desenvolvimento ágil
+
+## 🏗️ Arquitetura Modular
+
+O sistema foi completamente estruturado com arquitetura orientada a objetos:
+
+### Classes Principais
+
+- **`FeatureEngine`**: Centraliza toda engenharia de features
+  - Features temporais (dia da semana, fim de semana)
+  - Rolling features (médias móveis 3d/7d, tendências)
+  - Features de posição e variação
+  - Preparação automatizada para ML
+
+- **`ModelManager`**: Gerencia operações do modelo ML
+  - Criação de modelos ensemble
+  - Carregamento/salvamento automático
+  - Treinamento com validação
+  - Métricas de performance
+
+- **`StreamsAnalyzer`**: Análises estatísticas especializadas
+  - Análise de tendências recentes
+  - Padrões semanais detalhados
+  - Projeções lineares
+  - Avaliação de qualidade
+
+- **`StreamsPredictor`**: Classe principal unificada
+  - Interface simplificada
+  - Integração com Django
+  - Previsões contextuais
+  - Fallbacks inteligentes
 
 ## 📁 Estrutura do Projeto
 
 ```
 spotify-streams-predictor/
 ├── api_charts/                  
-│   ├── models.py                
-│   ├── serializers.py           
-│   ├── views.py                                
+│   ├── models.py               # Modelo SpotifyChart
+│   ├── serializers.py          # Serializers DRF
+│   ├── views.py                # Views com integração ML
+│   └── urls.py                 # Endpoints da API
 ├── ML/                          
-│   ├── ml_predictor.py          # Implementação do modelo de previsão
-│   ├── metrics.json             # Métricas de performance do modelo
-│   └── spotify_streams_model.joblib  # Modelo treinado serializado
-│   └── train_spotify_model.py   # Script para treinamento do modelo
+│   ├── ml_predictor.py         # Sistema ML modular completo
+│   ├── metrics.json            # Métricas salvas automaticamente
+│   └── spotify_streams_model.joblib  # Modelo ensemble serializado
 ├── scripts/                     
-│   ├── scrap_spotify_charts.py    # Script para obtenção dos dados
-├── data_csv/                    
-│   ├── original/                # CSV originais coletados
-│   └── processed/               # CSV processados para uso
+│   ├── scrap_spotify_charts.py  # Coleta de dados
+│   └── train_spotify_model.py   # Script de treinamento
 ├── setup/                       
-│   ├── settings.py              
-│   ├── urls.py                  
-│   └── wsgi.py                  
-└── manage.py                    
+│   ├── settings.py             # Configurações Django
+│   └── urls.py                 # URLs principais
+├── db.sqlite3                   # Banco SQLite3
+└── manage.py                   
 ```
 
 ## 🛠 Tecnologias Utilizadas
 
-- **[Django](https://www.djangoproject.com/)**: Framework web
-- **[Django REST Framework](https://www.django-rest-framework.org/)**: Framework para APIs REST
-- **[Scikit-Learn](https://scikit-learn.org/)**: Biblioteca de machine learning
-- **[Pandas](https://pandas.pydata.org/)**: Manipulação e análise de dados
+### Core Framework
+- **[Django 4.x](https://www.djangoproject.com/)**: Framework web robusto
+- **[Django REST Framework](https://www.django-rest-framework.org/)**: APIs RESTful
+- **[SQLite3](https://sqlite.org/)**: Banco de dados integrado
+
+### Machine Learning Stack
+- **[Scikit-Learn](https://scikit-learn.org/)**: Algoritmos ML e pipelines
+- **[Pandas](https://pandas.pydata.org/)**: Manipulação de dados
 - **[NumPy](https://numpy.org/)**: Computação numérica
+- **[SciPy](https://www.scipy.org/)**: Análises estatísticas avançadas
+- **[Joblib](https://joblib.readthedocs.io/)**: Serialização otimizada
+
+### Utilitários
 - **[BeautifulSoup](https://www.crummy.com/software/BeautifulSoup/)**: Web scraping
-- **[Joblib](https://joblib.readthedocs.io/)**: Serialização de modelos ML
-- **[SciPy](https://www.scipy.org/)**: Biblioteca científica para análise estatística
+- **[Django-Filter](https://django-filter.readthedocs.io/)**: Filtros avançados
 
-## 🤖 Modelo de Machine Learning
+## 🤖 Sistema de Machine Learning
 
-O sistema utiliza um modelo ensemble sofisticado composto por três algoritmos complementares:
+### Modelo Ensemble Avançado
 
-1. **Gradient Boosting Regressor**: Para capturar padrões complexos não-lineares
-2. **Random Forest Regressor**: Para lidar com diferentes tipos de dados e evitar overfitting
-3. **Ridge Regression**: Para estabelecer uma base linear robusta
+O sistema utiliza um **VotingRegressor** combinando três algoritmos especializados:
 
-Os três modelos trabalham em conjunto através de um **VotingRegressor** que combina suas previsões para obter resultados mais precisos e estáveis. O pipeline completo inclui:
+1. **Gradient Boosting Regressor**
+   - `n_estimators=150, learning_rate=0.05`
+   - `max_depth=5, subsample=0.8`
+   - Especializado em padrões não-lineares complexos
 
-- Pré-processamento com StandardScaler para normalização dos dados
-- Extração de features temporais (dia da semana, fim de semana)
-- Cálculo de médias móveis (3 e 7 dias)
-- Detecção de tendências recentes
-- Ajustes sazonais para dias da semana
+2. **Random Forest Regressor**
+   - `n_estimators=200, max_depth=10`
+   - `min_samples_leaf=2`
+   - Robusto contra overfitting
+
+3. **Ridge Regression**
+   - `alpha=1.0`
+   - Base linear estável
+
+### Pipeline Completo
+```python
+Pipeline([
+    ('scaler', StandardScaler()),      # Normalização
+    ('regressor', VotingRegressor)     # Modelo ensemble
+])
+```
+
+### Features Inteligentes (13 dimensões)
+
+- **Posicionais**: Posição atual/anterior, variação
+- **Temporais**: Streams atual/anterior, diferencial
+- **Sazonais**: Dias no chart, posição de pico
+- **Técnicos**: Multiplicador, médias móveis 3d/7d
+- **Contextuais**: Dia da semana, fim de semana
+- **Tendência**: Slope de 3 dias
 
 ## ⚙️ Instalação e Configuração
 
 ### Pré-requisitos
 
-- Python 3.12
-- pip (gerenciador de pacotes Python)
-- Banco de dados PostgreSQL (recomendado) ou SQLite
+- Python 3.8+ (recomendado 3.10+)
+- pip (gerenciador de pacotes)
 
 ### Passos para Instalação
 
 1. **Clone o repositório**
    ```bash
-   git clone https://github.com/milinull/Spotify-Streams-Prediction-API.git
+   git clone https://github.com/seu-usuario/spotify-streams-predictor.git
    cd spotify-streams-predictor
    ```
 
-2. **Crie e ative um ambiente virtual**
+2. **Crie ambiente virtual**
    ```bash
    python -m venv venv
-   venv\Scripts\activate  # No Windows
+   venv\Scripts\activate  # Windows
+   source venv/bin/activate  # Linux/Mac
    ```
 
-3. **Instale as dependências**
+3. **Instale dependências**
    ```bash
    pip install -r requirements.txt
    ```
 
-4. **Configure o banco de dados**
+4. **Configure banco SQLite**
    ```bash
    python manage.py migrate
    ```
 
-5. **Colete os dados iniciais**
+5. **Colete dados iniciais**
    ```bash
    python scripts/scrap_spotify_charts.py
    ```
 
 6. **Treine o modelo**
    ```bash
-   python ML/train_spotify_model.py
+   python train_spotify_model.py
    ```
 
 7. **Inicie o servidor**
@@ -144,47 +213,49 @@ Os três modelos trabalham em conjunto através de um **VotingRegressor** que co
 
 ## 📡 Uso da API
 
-### Endpoints
+### Endpoints Disponíveis
 
-| Endpoint | Método | Descrição |
-|----------|--------|-----------|
-| `/charts/` | GET | Lista todas as entradas de charts |
-| `/charts/?search=artista` | GET | Busca por artista ou título |
-| `/charts/?chart_date=2025-04-20` | GET | Filtra por data específica |
-| `/charts/?position=1` | GET | Filtra por posição no ranking |
-| `/predict/` | POST | Faz previsão de streams futuros |
-| `/analyze-trends/` | POST | Analisa tendências históricas |
+| Endpoint | Método | Descrição | Parâmetros |
+|----------|--------|-----------|------------|
+| `/charts/` | GET | Lista charts com filtros | `search`, `chart_date`, `position` |
+| `/predict/` | POST | Previsão de streams | `title`, `artist`, `days` |
+| `/analyze-trends/` | POST | Análise de tendências | `title`, `artist` |
+| `/simple-return/` | POST | Dados históricos simples | `title`, `artist` |
+| `/model-metrics/` | GET | Métricas do modelo atual | - |
 
 ### Exemplos de Requisições
 
-#### Previsão de Streams
+#### 🎯 Previsão de Streams
 
 ```bash
 curl -X POST http://localhost:8000/predict/ \
   -H "Content-Type: application/json" \
-  -d '{"title": "Cruel Summer", "artist": "Taylor Swift", "days": 7}'
+  -d '{
+    "title": "Anti-Hero", 
+    "artist": "Taylor Swift", 
+    "days": 5
+  }'
 ```
 
-**Resposta:**
+**Resposta Completa:**
 ```json
 {
-  "current_streams": 3254698,
-  "current_date": "2025-04-25",
+  "current_streams": 4521387,
+  "current_date": "2024-05-24",
   "predictions": [
     {
-      "date": "2025-04-26",
-      "predicted_streams": 3289412,
+      "date": "2024-05-25",
+      "predicted_streams": 4587234,
       "confidence_interval": {
-        "lower": 3102456,
-        "upper": 3476368
+        "lower": 4234567,
+        "upper": 4939901
       }
-    },
-    ,,,
+    }
   ],
   "metrics": {
-    "mae": 45863.22,
-    "rmse": 62914.58,
-    "r2": 0.9432,
+    "mae": 52341.22,
+    "rmse": 71829.45,
+    "r2": 0.9387,
     "description": {
       "mae": "Erro Médio Absoluto (menor é melhor)",
       "rmse": "Raiz do Erro Quadrático Médio (menor é melhor)",
@@ -196,88 +267,113 @@ curl -X POST http://localhost:8000/predict/ \
     "reason": "Streams estáveis ao longo do tempo",
     "trend": "ascendente",
     "variability": {
-      "coefficient_of_variation": 0.0812,
-      "standard_deviation": 264892
+      "coefficient_of_variation": 0.0723,
+      "standard_deviation": 326547
     }
   }
 }
 ```
 
-#### Análise de Tendências
+#### 📊 Análise de Tendências
 
 ```bash
 curl -X POST http://localhost:8000/analyze-trends/ \
   -H "Content-Type: application/json" \
-  -d '{"title": "Cruel Summer", "artist": "Taylor Swift"}'
+  -d '{
+    "title": "Flowers", 
+    "artist": "Miley Cyrus"
+  }'
 ```
 
 **Resposta:**
 ```json
 {
   "song_info": {
-    "title": "Cruel Summer",
-    "artist": "Taylor Swift",
-    "days_on_chart": 312,
+    "title": "Flowers",
+    "artist": "Miley Cyrus"
+  },
+  "song_stats": {
+    "days_on_chart": 156,
     "peak_position": 1,
-    "peak_streams": 4578932,
-    "average_streams": 3245621
+    "peak_streams": 5234567,
+    "average_streams": 3876543
   },
   "trend_analysis": {
-    "recent_direction": "crescente",
-    "trend_strength": 0.87,
-    "weekly_pattern": {
-      "best_day": "Sábado",
-      "worst_day": "Quarta",
-      "daily_averages": {
-        "Segunda": 3102458,
-        "Terça": 2987654,
-        "Quarta": 2876543,
-        "Quinta": 3056789,
-        "Sexta": 3456789,
-        "Sábado": 3876543,
-        "Domingo": 3654321
-      }
+    "direction": "decrescente",
+    "strength": 0.67
+  },
+  "weekly_patterns": {
+    "best_day": "Sábado",
+    "worst_day": "Terça",
+    "daily_averages": {
+      "Segunda": 3654321,
+      "Terça": 3234567,
+      // ... outros dias
     }
   },
   "linear_projection": [
     {
-      "date": "2025-04-26",
-      "projected_streams": 3315467
-    },
-    ,,,
+      "date": "2024-05-25",
+      "projected_streams": 3825647
+    }
+    // ... próximos 7 dias
   ]
 }
 ```
 
-## 📊 Fluxo de Dados
+#### 📈 Métricas do Modelo
 
-O sistema opera através do seguinte fluxo:
+```bash
+curl http://localhost:8000/model-metrics/
+```
 
-1. **Coleta**: O script `scrap_spotify_charts.py` extrai dados diários do Kworb.net
-2. **Processamento**: Os dados são limpos, transformados e normalizados
-3. **Armazenamento**: As informações são salvas no banco de dados
-4. **Treinamento**: O modelo é treinado periodicamente com os dados acumulados
-5. **Previsão**: Quando solicitado, o modelo faz previsões baseadas nos padrões aprendidos
-6. **Análise**: Métricas e estatísticas são calculadas para avaliar a qualidade das previsões
+**Resposta:**
+```json
+{
+  "model_metrics": {
+    "mae": 45863.22,
+    "rmse": 62914.58,
+    "r2": 0.9432,
+    "description": {
+      "mae": "Erro Médio Absoluto (menor é melhor)",
+      "rmse": "Raiz do Erro Quadrático Médio (menor é melhor)",
+      "r2": "Coeficiente de Determinação (mais próximo de 1 é melhor)"
+    }
+  },
+  "model_status": "trained"
+}
+```
 
-## 📊 Features do Modelo
+## 📊 Features e Análises
 
-As principais features utilizadas pelo modelo de previsão incluem:
+### Engenharia de Features Automatizada
 
-- **Posição atual e anterior no ranking**
-- **Quantidade de streams atual e anterior**
-- **Dias na parada**
-- **Posição de pico**
-- **Multiplicador (quando disponível)**
-- **Variação de streams entre dias**
-- **Média semanal de streams**
-- **Variação da média semanal**
-- **Média móvel de 3 dias**
-- **Dia da semana (0-6)**
-- **Flag de fim de semana**
-- **Tendência recente (inclinação da curva)**
+O `FeatureEngine` calcula automaticamente:
 
-## 👨‍💻 Manutenção e Atualização
+- **Temporais**: Dia da semana, fim de semana
+- **Rolling**: Médias móveis 3d/7d, diferenças
+- **Posicionais**: Variações, dias desde pico
+- **Trends**: Tendências de curto prazo
+
+### Análises Estatísticas Avançadas
+
+O `StreamsAnalyzer` oferece:
+
+- **Tendências Recentes**: Regressão linear dos últimos dados
+- **Padrões Semanais**: Performance por dia da semana
+- **Projeções**: Extrapolação baseada em tendências
+- **Qualidade**: Avaliação da confiabilidade das previsões
+
+### Ajustes Contextuais
+
+O sistema aplica automaticamente:
+
+- **Boost de Fim de Semana**: +5% para sábados/domingos
+- **Proteção contra Quedas**: Limita quedas bruscas
+- **Intervalos de Confiança**: Aumentam com o horizonte temporal
+- **Fallbacks**: Previsões simples para dados insuficientes
+
+## 🔧 Manutenção
 
 ### Atualização Diária dos Dados
 
@@ -288,9 +384,6 @@ python scripts/scrap_spotify_charts.py
 ```
 
 ### Retreinamento do Modelo
-
-Recomenda-se retreinar o modelo periodicamente para incorporar novos dados:
-
 ```bash
 python ML/train_spotify_model.py
 ```

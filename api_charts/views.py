@@ -3,7 +3,6 @@ from rest_framework import viewsets, filters, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django_filters.rest_framework import DjangoFilterBackend
-
 from .models import SpotifyChart
 from .serializers import *
 from ML.ml_predictor import StreamsPredictor
@@ -102,7 +101,7 @@ class SimpleReturnView(APIView):
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class ModelTrainingView(APIView):
+'''class ModelTrainingView(APIView):
     """
     API para treinar o modelo ML (nova funcionalidade)
     """
@@ -131,7 +130,7 @@ class ModelTrainingView(APIView):
             return Response(
                 {"error": f"Erro durante o treinamento: {str(e)}"}, 
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+            )'''
 
 class ModelMetricsView(APIView):
     """
