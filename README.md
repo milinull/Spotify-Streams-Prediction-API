@@ -94,7 +94,6 @@ spotify-streams-predictor/
 │   ├── models.py               # Modelo SpotifyChart
 │   ├── serializers.py          # Serializers DRF
 │   ├── views.py                # Views com integração ML
-│   └── urls.py                 # Endpoints da API
 ├── ML/                          
 │   ├── ml_predictor.py         # Sistema ML modular completo
 │   ├── metrics.json            # Métricas salvas automaticamente
