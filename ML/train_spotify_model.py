@@ -2,13 +2,14 @@
 import os
 import django
 import sys
-from api_charts.models import SpotifyChart
-from ML.ml_predictor import StreamsPredictor
 
 # Configurar o ambiente Django
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'setup.settings')
 django.setup()
+
+from api_charts.models import SpotifyChart
+from ML.ml_predictor import StreamsPredictor
 
 def train_model():
     """Treina o modelo com a nova estrutura modularizada"""

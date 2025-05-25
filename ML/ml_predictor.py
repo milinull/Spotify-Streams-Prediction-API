@@ -229,14 +229,14 @@ class ModelManager:
     
     def _save_metrics(self):
         """Salva métricas em arquivo"""
-        metrics_path = os.path.join('ML', 'metrics.json')
+        metrics_path = os.path.join('Metrics', 'metrics.json')
         os.makedirs(os.path.dirname(metrics_path), exist_ok=True)
         with open(metrics_path, 'w') as f:
             json.dump(self.metrics, f)
     
     def load_metrics(self):
         """Carrega métricas do arquivo"""
-        metrics_path = os.path.join('ML', 'metrics.json')
+        metrics_path = 'ML/Metrics/metrics.json'
         if os.path.exists(metrics_path):
             with open(metrics_path, 'r') as f:
                 self.metrics = json.load(f)
