@@ -1,0 +1,1 @@
+{"model_metrics":{"mae":11371.69,"rmse":14066.86,"r2":0.9692,"description":{"mae":"Erro Médio Absoluto (menor é melhor)","rmse":"Raiz do Erro Quadrático Médio (menor é melhor)","r2":"Coeficiente de Determinação (mais próximo de 1 é melhor)"}},"model_status":"trained"}

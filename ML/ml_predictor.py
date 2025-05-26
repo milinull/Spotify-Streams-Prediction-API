@@ -277,59 +277,59 @@ class StreamsAnalyzer:
         
         # Análise de tendência (últimos 7 dias)
         recent_df = df.tail(min(7, len(df)))
-        trend_analysis = StreamsAnalyzer._analyze_recent_trend(recent_df)
+#        trend_analysis = StreamsAnalyzer._analyze_recent_trend(recent_df)
         
         # Padrões semanais
-        weekly_patterns = StreamsAnalyzer._analyze_weekly_patterns(df)
+#        weekly_patterns = StreamsAnalyzer._analyze_weekly_patterns(df)
         
         # Projeção linear
         linear_projection = StreamsAnalyzer._calculate_linear_projection(recent_df)
         
         return {
             "song_stats": stats_basic,
-            "trend_analysis": trend_analysis,
-            "weekly_patterns": weekly_patterns,
+#           "trend_analysis": trend_analysis,
+#           "weekly_patterns": weekly_patterns,
             "linear_projection": linear_projection
         }
     
-    @staticmethod
-    def _analyze_recent_trend(recent_df):
-        """Analisa tendência recente"""
-        if len(recent_df) < 3:
-            return {"direction": "indeterminado", "strength": 0.0}
+    # @staticmethod
+    # def _analyze_recent_trend(recent_df):
+    #     """Analisa tendência recente"""
+    #     if len(recent_df) < 3:
+    #         return {"direction": "indeterminado", "strength": 0.0}
         
-        x = np.arange(len(recent_df))
-        y = recent_df['streams'].values
-        slope, _, r_value, _, _ = stats.linregress(x, y)
+    #     x = np.arange(len(recent_df))
+    #     y = recent_df['streams'].values
+    #     slope, _, r_value, _, _ = stats.linregress(x, y)
         
-        direction = "crescente" if slope > 0 else "decrescente" if slope < 0 else "estável"
-        strength = abs(r_value)
+    #     direction = "crescente" if slope > 0 else "decrescente" if slope < 0 else "estável"
+    #     strength = abs(r_value)
         
-        return {
-            "direction": direction,
-            "strength": round(float(strength), 2)
-        }
-    
-    @staticmethod
-    def _analyze_weekly_patterns(df):
-        """Analisa padrões semanais"""
-        if len(df) < 7:
-            return {"best_day": "indeterminado", "worst_day": "indeterminado", "daily_averages": {}}
+    #     return {
+    #         "direction": direction,
+    #         "strength": round(float(strength), 2)
+    #     }
+       
+    # @staticmethod
+    # def _analyze_weekly_patterns(df):
+    #     """Analisa padrões semanais"""
+    #     if len(df) < 7:
+    #         return {"best_day": "indeterminado", "worst_day": "indeterminado", "daily_averages": {}}
         
-        day_avg = df.groupby('day_of_week')['streams'].mean()
-        days_map = {0: "Segunda", 1: "Terça", 2: "Quarta", 3: "Quinta", 
-                   4: "Sexta", 5: "Sábado", 6: "Domingo"}
+    #     day_avg = df.groupby('day_of_week')['streams'].mean()
+    #     days_map = {0: "Segunda", 1: "Terça", 2: "Quarta", 3: "Quinta", 
+    #                4: "Sexta", 5: "Sábado", 6: "Domingo"}
         
-        daily_averages = {days_map[day]: int(avg) for day, avg in day_avg.items()}
-        best_day = days_map[day_avg.idxmax()]
-        worst_day = days_map[day_avg.idxmin()]
+    #     daily_averages = {days_map[day]: int(avg) for day, avg in day_avg.items()}
+    #     best_day = days_map[day_avg.idxmax()]
+    #     worst_day = days_map[day_avg.idxmin()]
         
-        return {
-            "best_day": best_day,
-            "worst_day": worst_day,
-            "daily_averages": daily_averages
-        }
-    
+    #     return {
+    #         "best_day": best_day,
+    #         "worst_day": worst_day,
+    #         "daily_averages": daily_averages
+    #     }
+
     @staticmethod
     def _calculate_linear_projection(recent_df, days=7):
         """Calcula projeção linear simples"""
@@ -415,6 +415,7 @@ class StreamsPredictor:
     
     def analyze_song_trends(self, song_title, artist):
         """Análise estatística de tendências"""
+
         song_data = self._get_song_data(song_title, artist)
         if isinstance(song_data, dict) and "error" in song_data:
             return song_data
