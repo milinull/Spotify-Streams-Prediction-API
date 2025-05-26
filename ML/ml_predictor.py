@@ -14,11 +14,28 @@ from django.apps import apps
 
 
 class FeatureEngine:
-    """Centraliza toda a engenharia de features"""
+    """
+    Centraliza a engenharia de features para análise e predição de dados dos charts do Spotify.
+
+    Esta classe oferece métodos para calcular características temporais, tendências,
+    comportamento de posição e preparação de dados para modelos de machine learning.
+    """
     
     @staticmethod
     def calculate_temporal_features(df):
-        """Calcula features temporais básicas"""
+        """
+        Calcula features temporais com base na data do chart.
+
+        Adiciona colunas com o dia da semana (0 = segunda, 6 = domingo)
+        e um indicador binário de fim de semana.
+
+        Parâmetros:
+            df (pd.DataFrame): DataFrame contendo a coluna 'chart_date'.
+
+        Retorna:
+            pd.DataFrame: DataFrame com novas colunas 'day_of_week' e 'is_weekend'.
+        """
+
         df = df.copy()
         df['chart_date'] = pd.to_datetime(df['chart_date'])
         df['day_of_week'] = df['chart_date'].dt.dayofweek
@@ -27,7 +44,20 @@ class FeatureEngine:
     
     @staticmethod
     def calculate_rolling_features(df, streams_col='streams'):
-        """Calcula médias móveis e tendências"""
+        """
+        Calcula médias móveis e tendências de streams.
+
+        Gera colunas de média móvel de 3 e 7 dias, além de uma tendência
+        com base na variação média dos streams nos últimos 3 dias.
+
+        Parâmetros:
+            df (pd.DataFrame): DataFrame contendo dados de streams.
+            streams_col (str): Nome da coluna de streams a ser utilizada.
+
+        Retorna:
+            pd.DataFrame: DataFrame com colunas 'rolling_3d', 'rolling_7d' e 'trend_3d'.
+        """
+
         df = df.copy()
         df['rolling_3d'] = df[streams_col].rolling(window=3, min_periods=1).mean()
         df['rolling_7d'] = df[streams_col].rolling(window=7, min_periods=1).mean()
@@ -36,7 +66,19 @@ class FeatureEngine:
     
     @staticmethod
     def calculate_position_features(df):
-        """Calcula features relacionadas à posição"""
+        """
+        Calcula features relacionadas à posição da música no chart.
+
+        Adiciona colunas com a variação diária de posição e um contador
+        acumulado de dias desde a primeira aparição de cada música.
+
+        Parâmetros:
+            df (pd.DataFrame): DataFrame com coluna 'position'.
+
+        Retorna:
+            pd.DataFrame: DataFrame com colunas 'position_change' e 'days_since_peak'.
+        """
+
         df = df.copy()
         df['position_change'] = df['position'].diff().fillna(0)
         df['days_since_peak'] = df.groupby(['title', 'artist']).cumcount()
@@ -44,7 +86,20 @@ class FeatureEngine:
     
     @staticmethod
     def prepare_ml_features(df):
-        """Prepara features para machine learning"""
+        """
+        Prepara vetores de features e targets para treinamento de modelos de machine learning.
+
+        Para cada música, calcula features agregadas por dia, como posição, streams,
+        médias móveis, tendência e dados temporais. Cria um vetor de entrada por dia,
+        e o valor alvo é o número de streams do respectivo dia.
+
+        Parâmetros:
+            df (pd.DataFrame): DataFrame com dados históricos das músicas.
+
+        Retorna:
+            Tuple[np.ndarray, np.ndarray]: Vetores de features e targets (streams).
+        """
+
         features = []
         targets = []
         
@@ -110,7 +165,21 @@ class FeatureEngine:
     
     @staticmethod
     def create_prediction_features(song_data, future_date):
-        """Cria features para uma predição específica"""
+        """
+        Gera o vetor de features mais recente para realizar uma predição de streams futuros.
+
+        Utiliza o histórico da música para calcular todas as features disponíveis e
+        adiciona informações temporais com base na data futura.
+
+        Parâmetros:
+            song_data (pd.DataFrame): Histórico de dados da música.
+            future_date (str ou datetime): Data futura para a qual se deseja predizer.
+
+        Retorna:
+            np.ndarray ou None: Vetor de features com uma única amostra para predição,
+            ou None se os dados forem insuficientes.
+        """
+
         if len(song_data) == 0:
             return None
             
@@ -147,15 +216,29 @@ class FeatureEngine:
 
 
 class ModelManager:
-    """Gerencia operações do modelo de ML"""
+    """Gerencia todas as operações relacionadas ao modelo de Machine Learning,
+    incluindo criação, treinamento, salvamento, carregamento, predição e avaliação.
+    """
     
     def __init__(self, model_path='spotify_streams_model.joblib'):
+        """
+        Inicializa a classe ModelManager.
+
+        Args:
+            model_path (str): Caminho para salvar ou carregar o modelo.
+        """
         self.model_path = model_path
         self.model = None
         self.metrics = {'mae': None, 'rmse': None, 'r2': None}
     
     def create_model(self):
-        """Cria um novo modelo ensemble"""
+        """
+        Cria um modelo ensemble composto por três algoritmos:
+        Gradient Boosting, Random Forest e Ridge Regression, combinados via VotingRegressor.
+
+        Returns:
+            sklearn.pipeline.Pipeline: Pipeline com escalador + ensemble regressivo.
+        """
         models = [
             ('gb', GradientBoostingRegressor(
                 n_estimators=150, learning_rate=0.05, max_depth=5, 
@@ -176,7 +259,12 @@ class ModelManager:
         return self.model
     
     def load_model(self):
-        """Carrega modelo existente"""
+        """
+        Tenta carregar o modelo salvo do disco.
+
+        Returns:
+            bool: True se o modelo for carregado com sucesso, False caso contrário.
+        """
         if os.path.exists(self.model_path):
             try:
                 self.model = joblib.load(self.model_path)
@@ -187,24 +275,35 @@ class ModelManager:
         return False
     
     def save_model(self):
-        """Salva o modelo atual"""
+        """
+        Salva o modelo atual no caminho definido.
+        """
         if self.model:
             joblib.dump(self.model, self.model_path)
     
     def train(self, X, y):
-        """Treina o modelo"""
+        """
+        Treina o modelo com os dados fornecidos e calcula métricas de avaliação.
+
+        Divide os dados em 80% treino e 20% teste, realiza o treinamento
+        e salva tanto o modelo quanto as métricas.
+
+        Args:
+            X (np.array): Vetores de features.
+            y (np.array): Valores alvo (streams).
+
+        Returns:
+            dict: Informações sobre o treinamento, incluindo métricas e tamanhos dos conjuntos.
+        """
         if self.model is None:
             self.create_model()
         
-        # Dividir em treino e teste
         split_idx = int(len(X) * 0.8)
         X_train, X_test = X[:split_idx], X[split_idx:]
         y_train, y_test = y[:split_idx], y[split_idx:]
         
-        # Treinar
         self.model.fit(X_train, y_train)
         
-        # Calcular métricas
         y_pred = self.model.predict(X_test)
         self.metrics = {
             'mae': mean_absolute_error(y_test, y_pred),
@@ -222,27 +321,47 @@ class ModelManager:
         }
     
     def predict(self, X):
-        """Faz predição"""
+        """
+        Realiza predições usando o modelo treinado.
+
+        Args:
+            X (np.array): Vetores de features para predição.
+
+        Returns:
+            np.array: Valores preditos.
+
+        Raises:
+            ValueError: Se o modelo ainda não foi treinado.
+        """
         if self.model is None:
             raise ValueError("Modelo não treinado")
         return self.model.predict(X)
     
     def _save_metrics(self):
-        """Salva métricas em arquivo"""
+        """
+        Salva as métricas do modelo treinado em um arquivo JSON.
+        """
         metrics_path = os.path.join('Metrics', 'metrics.json')
         os.makedirs(os.path.dirname(metrics_path), exist_ok=True)
         with open(metrics_path, 'w') as f:
             json.dump(self.metrics, f)
     
     def load_metrics(self):
-        """Carrega métricas do arquivo"""
+        """
+        Carrega métricas salvas previamente do arquivo JSON.
+        """
         metrics_path = 'ML/Metrics/metrics.json'
         if os.path.exists(metrics_path):
             with open(metrics_path, 'r') as f:
                 self.metrics = json.load(f)
     
     def get_metrics_dict(self):
-        """Retorna métricas formatadas"""
+        """
+        Retorna as métricas de avaliação do modelo formatadas e explicadas.
+
+        Returns:
+            dict: Dicionário com métricas e descrições.
+        """
         return {
             "mae": round(float(self.metrics['mae']), 2) if self.metrics['mae'] else 0,
             "rmse": round(float(self.metrics['rmse']), 2) if self.metrics['rmse'] else 0,
@@ -256,11 +375,26 @@ class ModelManager:
 
 
 class StreamsAnalyzer:
-    """Análises estatísticas e tendências"""
+    """Realiza análises estatísticas e projeções relacionadas ao desempenho de uma música nas paradas.
+
+    Essa classe oferece métodos para identificar padrões, tendências e realizar previsões baseadas nos
+    dados históricos de streams.
+    """
     
     @staticmethod
     def analyze_trends(song_data):
-        """Analisa tendências estatísticas"""
+        """
+        Analisa tendências gerais de desempenho com base nos dados históricos da música.
+
+        Executa cálculo de estatísticas básicas, prepara os dados temporais e realiza uma projeção linear
+        simples com base nos últimos dias.
+
+        Args:
+            song_data (pd.DataFrame): DataFrame com o histórico da música.
+
+        Returns:
+            dict: Dicionário contendo estatísticas da música e projeções futuras.
+        """
         if len(song_data) < 3:
             return {"error": "Dados insuficientes para análise"}
         
@@ -286,7 +420,6 @@ class StreamsAnalyzer:
         linear_projection = StreamsAnalyzer._calculate_linear_projection(recent_df)
         
         return {
-
             "song_stats": stats_basic,
 #            "trend_analysis": trend_analysis,
 #            "weekly_patterns": weekly_patterns,
@@ -295,7 +428,18 @@ class StreamsAnalyzer:
     
     # @staticmethod
     # def _analyze_recent_trend(recent_df):
-    #     """Analisa tendência recente"""
+    #     """
+    #     Analisa a direção e força da tendência recente de streams.
+
+    #     Realiza uma regressão linear nos últimos dias para identificar se os streams estão
+    #     aumentando, diminuindo ou estáveis, e qual a força dessa tendência.
+
+    #     Args:
+    #         recent_df (pd.DataFrame): Subconjunto mais recente dos dados.
+
+    #     Returns:
+    #         dict: Direção ('crescente', 'decrescente', 'estável') e força (float de 0 a 1).
+    #     """
     #     if len(recent_df) < 3:
     #         return {"direction": "indeterminado", "strength": 0.0}
         
@@ -310,10 +454,21 @@ class StreamsAnalyzer:
     #         "direction": direction,
     #         "strength": round(float(strength), 2)
     #     }
-       
+
     # @staticmethod
     # def _analyze_weekly_patterns(df):
-    #     """Analisa padrões semanais"""
+    #     """
+    #     Identifica padrões semanais de streams, como melhores e piores dias da semana.
+
+    #     Agrupa os dados por dia da semana e calcula as médias de streams,
+    #     retornando o dia mais forte e o mais fraco.
+
+    #     Args:
+    #         df (pd.DataFrame): DataFrame com colunas temporais e de streams.
+
+    #     Returns:
+    #         dict: Melhor dia, pior dia e médias por dia da semana.
+    #     """
     #     if len(df) < 7:
     #         return {"best_day": "indeterminado", "worst_day": "indeterminado", "daily_averages": {}}
         
@@ -333,7 +488,18 @@ class StreamsAnalyzer:
 
     @staticmethod
     def _calculate_linear_projection(recent_df, days=7):
-        """Calcula projeção linear simples"""
+        """
+        Realiza uma projeção linear simples para prever o número de streams futuros.
+
+        Utiliza regressão linear com base nos últimos dias e projeta valores para os próximos `days`.
+
+        Args:
+            recent_df (pd.DataFrame): Subconjunto mais recente dos dados históricos.
+            days (int): Número de dias futuros para projetar.
+
+        Returns:
+            list: Lista de dicionários com datas e valores projetados de streams.
+        """
         if len(recent_df) < 3:
             return []
         
@@ -357,15 +523,40 @@ class StreamsAnalyzer:
 
 
 class StreamsPredictor:
-    """Classe principal"""
+    """
+    Classe responsável por treinar e utilizar modelos de machine learning
+    para prever streams futuros de músicas no Spotify, com base em dados históricos.
+    
+    Funcionalidades:
+    - Treinamento de modelo com dados históricos
+    - Predição de streams futuros com modelo ML ou abordagem simples
+    - Análise estatística de tendências de músicas
+    - Retorno de dados históricos recentes
+    """
     
     def __init__(self, model_path='spotify_streams_model.joblib'):
+        """
+        Inicializa a classe, carregando ou criando o modelo de predição.
+
+        Parâmetros:
+        - model_path (str): Caminho para o arquivo do modelo salvo.
+        """
+
         self.model_manager = ModelManager(model_path)
         self.model_manager.load_model() or self.model_manager.create_model()
         self.model_manager.load_metrics()
     
     def train(self, spotify_data):
-        """Treina o modelo com dados históricos"""
+        """
+        Treina o modelo de predição com os dados históricos fornecidos.
+
+        Parâmetros:
+        - spotify_data (dict): Dicionário com os dados históricos da música.
+
+        Retorna:
+        - dict: Resultado do treinamento ou mensagem de erro.
+        """
+
         df = pd.DataFrame(list(spotify_data.values()))
         
         if df.empty:
@@ -380,7 +571,18 @@ class StreamsPredictor:
         return self.model_manager.train(X, y)
     
     def predict_future_streams(self, song_title, artist, days_to_predict=7):
-        """Predição principal usando ML"""
+        """
+        Realiza a predição de streams futuros para uma música específica.
+
+        Parâmetros:
+        - song_title (str): Título da música.
+        - artist (str): Nome do artista.
+        - days_to_predict (int): Número de dias futuros a prever (default: 7).
+
+        Retorna:
+        - dict: Predições futuras, métricas e qualidade da previsão, ou mensagens de erro/alerta.
+        """
+
         # Buscar dados da música
         song_data = self._get_song_data(song_title, artist)
         if isinstance(song_data, dict) and "error" in song_data:
@@ -415,7 +617,16 @@ class StreamsPredictor:
         }
     
     def analyze_song_trends(self, song_title, artist):
-        """Análise estatística de tendências"""
+        """
+        Analisa tendências históricas da música em termos estatísticos.
+
+        Parâmetros:
+        - song_title (str): Título da música.
+        - artist (str): Nome do artista.
+
+        Retorna:
+        - dict: Análise estatística da evolução dos streams da música.
+        """
 
         song_data = self._get_song_data(song_title, artist)
         if isinstance(song_data, dict) and "error" in song_data:
@@ -427,7 +638,17 @@ class StreamsPredictor:
         return analysis
     
     def simple_return(self, song_title, artist):
-        """Retorna dados históricos simples"""
+        """
+        Retorna os dados históricos recentes da música, limitando aos últimos 7 dias.
+
+        Parâmetros:
+        - song_title (str): Título da música.
+        - artist (str): Nome do artista.
+
+        Retorna:
+        - list: Lista de dicionários contendo data e streams.
+        """
+                
         song_data = self._get_song_data(song_title, artist)
         if isinstance(song_data, dict) and "error" in song_data:
             return []
@@ -442,7 +663,17 @@ class StreamsPredictor:
         ]
     
     def _get_song_data(self, song_title, artist):
-        """Busca dados da música no banco"""
+        """
+        Recupera os dados históricos de uma música específica a partir do banco de dados.
+
+        Parâmetros:
+        - song_title (str): Título da música.
+        - artist (str): Nome do artista.
+
+        Retorna:
+        - DataFrame: Dados da música ordenados por data, ou dicionário com erro.
+        """
+
         SpotifyChart = apps.get_model('api_charts', 'SpotifyChart')
         
         song_data = SpotifyChart.objects.filter(
@@ -458,7 +689,17 @@ class StreamsPredictor:
         return df
     
     def _ml_predictions(self, song_data, days_to_predict):
-        """Faz predições usando machine learning"""
+        """
+        Gera predições de streams usando o modelo de machine learning.
+
+        Parâmetros:
+        - song_data (DataFrame): Dados históricos da música.
+        - days_to_predict (int): Quantidade de dias a prever.
+
+        Retorna:
+        - list: Lista de predições com data, streams e intervalo de confiança.
+        """
+
         predictions = []
         current_data = song_data.copy()
         
@@ -503,7 +744,18 @@ class StreamsPredictor:
         return predictions
     
     def _apply_contextual_adjustments(self, predicted_streams, date, song_data):
-        """Aplica ajustes contextuais à predição"""
+        """
+        Aplica ajustes contextuais às predições (como fim de semana ou suavização).
+
+        Parâmetros:
+        - predicted_streams (int): Valor previsto de streams.
+        - date (datetime): Data da predição.
+        - song_data (DataFrame): Dados históricos da música.
+
+        Retorna:
+        - int: Valor ajustado da predição.
+        """
+
         # Ajuste de fim de semana
         if date.weekday() >= 5:  # Sábado ou Domingo
             predicted_streams = int(predicted_streams * 1.05)
@@ -517,7 +769,17 @@ class StreamsPredictor:
         return predicted_streams
     
     def _calculate_confidence_interval(self, predicted_streams, day_offset):
-        """Calcula intervalo de confiança"""
+        """
+        Calcula o intervalo de confiança para uma predição de streams.
+
+        Parâmetros:
+        - predicted_streams (int): Valor previsto.
+        - day_offset (int): Quantos dias no futuro está a predição.
+
+        Retorna:
+        - dict | None: Intervalo inferior e superior, ou None se não aplicável.
+        """
+
         if self.model_manager.metrics['rmse'] is None:
             return None
         
@@ -531,7 +793,18 @@ class StreamsPredictor:
         }
     
     def _update_data_for_next_iteration(self, current_data, next_date, predicted_streams):
-        """Atualiza dados para próxima iteração"""
+        """
+        Atualiza os dados históricos com a predição mais recente para alimentar a próxima iteração.
+
+        Parâmetros:
+        - current_data (DataFrame): Histórico atual.
+        - next_date (datetime): Próxima data a ser adicionada.
+        - predicted_streams (int): Streams previstos para a nova data.
+
+        Retorna:
+        - DataFrame: Novo histórico com a linha predita adicionada.
+        """
+
         # Criar nova linha com predição
         new_row = current_data.iloc[-1].copy()
         new_row['chart_date'] = next_date
@@ -544,7 +817,17 @@ class StreamsPredictor:
         return new_df
     
     def _simple_prediction(self, song_data, days_to_predict):
-        """Predição simples baseada em tendência linear"""
+        """
+        Realiza predições simples com base em tendência linear dos dados históricos.
+
+        Parâmetros:
+        - song_data (DataFrame): Dados históricos da música.
+        - days_to_predict (int): Número de dias a prever.
+
+        Retorna:
+        - list: Lista de predições por dia com streams previstos.
+        """
+
         if len(song_data) < 2:
             # Apenas um ponto - manter valor constante
             last_streams = song_data['streams'].iloc[-1]
@@ -578,7 +861,16 @@ class StreamsPredictor:
         return predictions
     
     def _evaluate_prediction_quality(self, song_data):
-        """Avalia qualidade da predição"""
+        """
+        Avalia a qualidade das predições com base em variabilidade dos dados e métricas do modelo.
+
+        Parâmetros:
+        - song_data (DataFrame): Dados históricos da música.
+
+        Retorna:
+        - dict: Avaliação da confiança, motivo, tendência e variabilidade.
+        """
+        
         if len(song_data) < 5:
             return {
                 "confidence": "baixa",
@@ -627,3 +919,4 @@ class StreamsPredictor:
                 "standard_deviation": int(song_data['streams'].std()) if not np.isnan(song_data['streams'].std()) else None
             }
         }
+    

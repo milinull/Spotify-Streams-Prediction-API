@@ -16,7 +16,18 @@ django.setup()
 from api_charts.models import SpotifyChart
 
 def limpar_numero(valor):
-    """ Remove vírgulas, sinais e converte para inteiro, tratando valores vazios """
+    """
+    Limpa uma string numérica removendo vírgulas, aspas e sinais de adição,
+    convertendo-a em um inteiro. Retorna None se o valor estiver vazio ou 
+    não for um número válido.
+
+    Parâmetros:
+        valor (str): String representando um número com possíveis símbolos.
+
+    Retorna:
+        int ou None: Valor convertido em inteiro ou None se inválido.
+    """
+
     if not valor or not valor.strip():
         return None
     valor_limpo = valor.replace(',', '').replace('"', '').replace('+', '')
@@ -26,7 +37,17 @@ def limpar_numero(valor):
         return None
 
 def extrair_multiplier(valor):
-    """ Converte diretamente para inteiro, tratando valores vazios """
+    """
+    Converte uma string para inteiro, usada para extrair valores de multiplicadores.
+    Retorna None se o valor estiver vazio ou não puder ser convertido.
+
+    Parâmetros:
+        valor (str): String representando um número inteiro.
+
+    Retorna:
+        int ou None: Valor inteiro ou None em caso de erro.
+    """
+
     if not valor or not valor.strip():
         return None
     try:
@@ -35,7 +56,20 @@ def extrair_multiplier(valor):
         return None
 
 def importar_csv(csv_path):
-    """ Importa os dados do CSV processado para o banco de dados """
+    """
+    Importa dados de um arquivo CSV processado e insere ou atualiza os registros 
+    correspondentes em uma tabela do banco de dados (SpotifyChart).
+
+    O nome do arquivo deve conter a data no formato 'YYYY-MM-DD', usada como 
+    referência para o campo 'chart_date'.
+
+    Parâmetros:
+        csv_path (str): Caminho do arquivo CSV a ser importado.
+
+    Retorna:
+        None
+    """
+
     if not os.path.exists(csv_path):
         print(f"Erro: Arquivo {csv_path} não encontrado!")
         return
@@ -77,7 +111,15 @@ def importar_csv(csv_path):
     print(f"Importação concluída! {count} registros adicionados ou atualizados.")
 
 def get_spotify_charts():
-    """ Extrai os charts do Spotify, salva o CSV original e gera um CSV processado """
+    """
+    Faz o scraping da tabela diária de rankings globais do Spotify a partir do site 
+    'kworb.net', salva o CSV original com os dados brutos e gera uma versão processada 
+    com os campos organizados e limpos. Em seguida, importa os dados para o banco.
+
+    Retorna:
+        None
+    """
+
     url = "https://kworb.net/spotify/country/global_daily.html"
     response = requests.get(url)
     response.raise_for_status()
@@ -134,7 +176,19 @@ def get_spotify_charts():
     importar_csv(processed_filepath)
 
 def process_csv(input_filepath, output_filepath):
-    """ Processa o CSV original e salva um novo formatado """
+    """
+    Lê um arquivo CSV original com dados brutos dos charts do Spotify,
+    processa os campos separando artista, título e artistas convidados,
+    extrai o multiplicador corretamente e salva um novo arquivo CSV formatado.
+
+    Parâmetros:
+        input_filepath (str): Caminho do arquivo CSV original.
+        output_filepath (str): Caminho do arquivo onde o CSV processado será salvo.
+
+    Retorna:
+        None
+    """
+
     with open(input_filepath, mode="r", encoding="utf-8") as infile, \
          open(output_filepath, mode="w", newline="", encoding="utf-8") as outfile:
         
