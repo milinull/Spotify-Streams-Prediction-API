@@ -35,15 +35,15 @@ def train_model():
         return
     
     print("Modelo treinado com sucesso!")
-    print("Métricas do modelo:")
-    print(f"  MAE (Erro Médio Absoluto): {training_result['metrics']['mae']}")
-    print(f"  RMSE (Raiz do Erro Quadrático): {training_result['metrics']['rmse']}")
-    print(f"  R² (Coeficiente de Determinação): {training_result['metrics']['r2']}")
-    print(f"  Tamanho do conjunto de treino: {training_result['training_size']}")
-    print(f"  Tamanho do conjunto de teste: {training_result['testing_size']}")
+    # print("Métricas do modelo:")
+    # print(f"  MAE (Erro Médio Absoluto): {training_result['metrics']['mae']}")
+    # print(f"  RMSE (Raiz do Erro Quadrático): {training_result['metrics']['rmse']}")
+    # print(f"  R² (Coeficiente de Determinação): {training_result['metrics']['r2']}")
+    # print(f"  Tamanho do conjunto de treino: {training_result['training_size']}")
+    # print(f"  Tamanho do conjunto de teste: {training_result['testing_size']}")
     
     # As métricas já são salvas automaticamente pela nova estrutura
-    print("\nMétricas salvas automaticamente em 'ML/metrics.json'")
+    print("\nMétricas salvas automaticamente em 'Metrics/metrics.json'")
     print("Modelo salvo automaticamente em 'ML/spotify_streams_model.joblib'")
     print("\nAgora você pode usar a API de previsão!")
 

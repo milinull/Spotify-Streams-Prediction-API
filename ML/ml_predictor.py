@@ -286,9 +286,10 @@ class StreamsAnalyzer:
         linear_projection = StreamsAnalyzer._calculate_linear_projection(recent_df)
         
         return {
+
             "song_stats": stats_basic,
-#           "trend_analysis": trend_analysis,
-#           "weekly_patterns": weekly_patterns,
+#            "trend_analysis": trend_analysis,
+#            "weekly_patterns": weekly_patterns,
             "linear_projection": linear_projection
         }
     
