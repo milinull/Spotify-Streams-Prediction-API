@@ -91,20 +91,20 @@ O sistema foi completamente estruturado com arquitetura orientada a objetos:
 ```
 spotify-streams-predictor/
 ├── api_charts/                  
-│   ├── models.py               # Modelo SpotifyChart
-│   ├── serializers.py          # Serializers DRF
-│   ├── views.py                # Views com integração ML
+│   ├── models.py                     # Modelo SpotifyChart
+│   ├── serializers.py                # Serializers DRF
+│   ├── views.py                      # Views com integração ML
 ├── ML/                          
-│   ├── ml_predictor.py         # Sistema ML modular completo
-│   ├── metrics.json            # Métricas salvas automaticamente
+│   ├── ml_predictor.py               # Sistema ML modular completo
+│   ├── metrics.json                  # Métricas salvas automaticamente
 │   └── spotify_streams_model.joblib  # Modelo ensemble serializado
-├── scripts/                     
-│   ├── scrap_spotify_charts.py  # Coleta de dados
-│   └── train_spotify_model.py   # Script de treinamento
+│   └── train_spotify_model.py        # Script de treinamento
+├── scripts/                      
+│   ├── scrap_spotify_charts.py       # Coleta de dados
 ├── setup/                       
-│   ├── settings.py             # Configurações Django
-│   └── urls.py                 # URLs principais
-├── db.sqlite3                   # Banco SQLite3
+│   ├── settings.py                   # Configurações Django
+│   └── urls.py                       # URLs principais
+├── db.sqlite3                        # Banco SQLite3
 └── manage.py                   
 ```
 
